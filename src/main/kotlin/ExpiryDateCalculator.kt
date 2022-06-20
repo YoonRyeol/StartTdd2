@@ -3,16 +3,34 @@ import java.time.YearMonth
 
 class ExpiryDateCalculator {
     fun calculateExpiryDate(payData: PayData): LocalDate {
-        val addendMonths = payData.payAmount!!/10_000L
-        val candidateExp = payData.billingDate!!.plusMonths(addendMonths)
-        if(payData.firstBillingDate != null && payData.firstBillingDate!!.dayOfMonth != candidateExp.dayOfMonth) {
-            if(YearMonth.from(candidateExp).lengthOfMonth() < payData.firstBillingDate.dayOfMonth){
-                return candidateExp.withDayOfMonth(
-                    YearMonth.from(candidateExp).lengthOfMonth()
-                )
-            }
-            return candidateExp.withDayOfMonth(payData.firstBillingDate.dayOfMonth)
+        payData.payAmount!!
+        payData.billingDate!!
+
+        val addendMonths = payData.payAmount / 10_000L
+        if (payData.firstBillingDate != null) {
+            return calculateExpiryDate(payData, addendMonths)
         }
-        return payData.billingDate!!.plusMonths(addendMonths)
+        return payData.billingDate.plusMonths(addendMonths)
+    }
+
+    private fun calculateExpiryDate(payData: PayData, addendMonths: Long): LocalDate {
+        payData.payAmount!!
+        payData.billingDate!!
+        payData.firstBillingDate!!
+
+        val candidateExp = payData.billingDate.plusMonths(addendMonths)
+        val dayOfFirstBilling = payData.firstBillingDate.dayOfMonth
+        if (dayOfFirstBilling != candidateExp.dayOfMonth) {
+            return decideCandidateDay(candidateExp, dayOfFirstBilling)
+        }
+        return candidateExp
+    }
+
+    private fun decideCandidateDay(candidateExp: LocalDate, dayOfFirstBilling: Int): LocalDate{
+        val dayLenOfCandiMon = YearMonth.from(candidateExp).lengthOfMonth()
+        if (dayLenOfCandiMon < dayOfFirstBilling) {
+            return candidateExp.withDayOfMonth(dayLenOfCandiMon)
+        }
+        return candidateExp.withDayOfMonth(dayOfFirstBilling)
     }
 }
