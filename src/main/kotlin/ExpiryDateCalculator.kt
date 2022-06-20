@@ -6,7 +6,9 @@ class ExpiryDateCalculator {
         payData.payAmount!!
         payData.billingDate!!
 
-        val addendMonths = payData.payAmount / 10_000L
+        var addendMonths = 0L
+        if (payData.payAmount == 100_000 ) addendMonths = 12L else payData.payAmount/10_000L
+
         if (payData.firstBillingDate != null) {
             return calculateExpiryDate(payData, addendMonths)
         }
